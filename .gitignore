@@ -29,3 +29,19 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Ionic specific files
+www/
+cordova/
+
+# Build output
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
