@@ -44,9 +44,12 @@ const Tab2: React.FC = () => {
   };
 
   // Use the hook to load the wishlist and products when entering the view
-  useIonViewWillEnter(async () => {
-    await fetchAllProducts();
-    await loadWishlist();
+  useIonViewWillEnter(() => {
+    // Call the async functions within an immediately-invoked async function expression
+    (async () => {
+      await fetchAllProducts();
+      await loadWishlist();
+    })();
   });
 
   // Handle refresh
