@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonAlert, IonRefresher, IonRefresherContent } from '@ionic/react';
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonAlert,
+  IonRefresher,
+  IonRefresherContent,
+} from '@ionic/react';
 import { useIonViewWillEnter } from '@ionic/react';
 import localforage from 'localforage';
 
+// Definimos la interfaz para los productos
 interface Producto {
   id: number;
   title: string;
-  // Add other properties as needed
 }
 
 const Tab2: React.FC = () => {
@@ -15,7 +27,7 @@ const Tab2: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
 
-  // Function to fetch all products from the API
+  // Función para obtener todos los productos desde la API
   const fetchAllProducts = async () => {
     try {
       const response = await fetch('https://api.escuelajs.co/api/v1/products');
@@ -30,7 +42,7 @@ const Tab2: React.FC = () => {
     }
   };
 
-  // Load wishlist from localforage
+  // Cargar la lista de deseos desde localforage
   const loadWishlist = async () => {
     try {
       const savedWishlist: Producto[] = (await localforage.getItem('wishlist')) || [];
@@ -43,28 +55,29 @@ const Tab2: React.FC = () => {
     }
   };
 
-  // Use the hook to load the wishlist and products when entering the view
+  // Usar el hook para cargar la lista de deseos y productos al entrar a la vista
   useIonViewWillEnter(() => {
-    // Call the async functions within an immediately-invoked async function expression
-    (async () => {
+    // Cargar datos de forma asíncrona
+    const loadData = async () => {
       await fetchAllProducts();
       await loadWishlist();
-    })();
+    };
+    loadData();
   });
 
-  // Handle refresh
+  // Manejar el refresco de la lista
   const handleRefresh = async (event: CustomEvent) => {
     await fetchAllProducts();
     await loadWishlist();
     (event.target as HTMLIonRefresherElement).complete();
   };
 
-  // Handle closing the error alert
+  // Manejar el cierre de la alerta de error
   const handleCloseError = () => {
     setError(null);
   };
 
-  // Handle user interaction with wishlist
+  // Manejar la interacción del usuario con la lista de deseos
   const handleUserInteraction = () => {
     setHasInteracted(true);
   };
@@ -94,7 +107,7 @@ const Tab2: React.FC = () => {
           )}
         </IonList>
 
-        {/* Alert to show errors */}
+        {/* Alerta para mostrar errores */}
         {error && (
           <IonAlert
             isOpen={!!error}
