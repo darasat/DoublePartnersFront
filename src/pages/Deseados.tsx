@@ -36,6 +36,8 @@ const Tab2: React.FC = () => {
       }
       const data: Producto[] = await response.json();
       setAllProducts(data);
+      // Cargar la lista de deseos después de obtener todos los productos
+      await loadWishlist(data);
     } catch (error: any) {
       console.error('Error al obtener los productos:', error);
       setError('No se pudieron cargar los productos.');
@@ -43,10 +45,13 @@ const Tab2: React.FC = () => {
   };
 
   // Cargar la lista de deseos desde localforage
-  const loadWishlist = async () => {
+  const loadWishlist = async (products: Producto[]) => {
     try {
       const savedWishlist: Producto[] = (await localforage.getItem('wishlist')) || [];
-      const updatedWishlist = savedWishlist.filter(product => allProducts.some(p => p.id === product.id));
+      // Filtrar productos en la wishlist que existen en products
+      const updatedWishlist = savedWishlist.filter(product =>
+        products.some(p => p.id === product.id)
+      );
       setWishlist(updatedWishlist);
       setError(null);
     } catch (error: any) {
@@ -57,18 +62,12 @@ const Tab2: React.FC = () => {
 
   // Usar el hook para cargar la lista de deseos y productos al entrar a la vista
   useIonViewWillEnter(() => {
-    // Cargar datos de forma asíncrona
-    const loadData = async () => {
-      await fetchAllProducts();
-      await loadWishlist();
-    };
-    loadData();
+    fetchAllProducts(); // Cargar todos los productos y la wishlist
   });
 
   // Manejar el refresco de la lista
   const handleRefresh = async (event: CustomEvent) => {
     await fetchAllProducts();
-    await loadWishlist();
     (event.target as HTMLIonRefresherElement).complete();
   };
 
@@ -86,10 +85,11 @@ const Tab2: React.FC = () => {
   const addToWishlist = async (producto: Producto) => {
     try {
       const savedWishlist: Producto[] = (await localforage.getItem('wishlist')) || [];
+      // Verificar si el producto ya está en la wishlist
       if (!savedWishlist.some(item => item.id === producto.id)) {
         savedWishlist.push(producto);
         await localforage.setItem('wishlist', savedWishlist);
-        loadWishlist(); // Actualiza la lista de deseos después de agregar
+        await loadWishlist(allProducts); // Actualiza la lista de deseos después de agregar
       }
     } catch (error) {
       console.error('Error al agregar a la lista de deseos:', error);
