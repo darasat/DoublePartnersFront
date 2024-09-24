@@ -82,6 +82,20 @@ const Tab2: React.FC = () => {
     setHasInteracted(true);
   };
 
+  // Agregar producto a la lista de deseos
+  const addToWishlist = async (producto: Producto) => {
+    try {
+      const savedWishlist: Producto[] = (await localforage.getItem('wishlist')) || [];
+      if (!savedWishlist.some(item => item.id === producto.id)) {
+        savedWishlist.push(producto);
+        await localforage.setItem('wishlist', savedWishlist);
+        loadWishlist(); // Actualiza la lista de deseos después de agregar
+      }
+    } catch (error) {
+      console.error('Error al agregar a la lista de deseos:', error);
+    }
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -100,7 +114,7 @@ const Tab2: React.FC = () => {
             </IonItem>
           ) : (
             wishlist.map((producto) => (
-              <IonItem key={producto.id} onClick={handleUserInteraction}>
+              <IonItem key={producto.id} onClick={() => handleUserInteraction()}>
                 <IonLabel>{producto.title}</IonLabel>
               </IonItem>
             ))
